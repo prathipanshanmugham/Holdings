@@ -53,7 +53,7 @@ if systemctl list-unit-files hq-mcp.service >/dev/null 2>&1 && [ -f /etc/hq-mcp.
   grep -q '^SUPABASE_KEY=sb_secret' /etc/hq-mcp.env && bad "connector uses a SECRET key — use the publishable key" || ok "connector uses the publishable key"
   [ "$(curl -s -m 10 https://$MCPHOST/health)" = '{"ok":true}' ] && ok "https://$MCPHOST healthy" || bad "connector not reachable over https"
   CODE=$(curl -s -m 10 -o /dev/null -w "%{http_code}" -X POST https://$MCPHOST/mcp -H "Content-Type: application/json" -d '{}'); [ "$CODE" = 401 ] && ok "connector refuses requests without the token" || bad "connector answered $CODE without a token"
-  grep -q "$T" /var/log/nginx/*.log 2>/dev/null && bad "token appears in nginx logs — run deploy/harden.sh, then: truncate -s0 /var/log/nginx/*.log" || ok "token not in web logs"
+  grep -qs "$T" /var/log/nginx/*.log /var/log/nginx/*.log.1 && bad "token appears in nginx logs — run deploy/harden.sh, then: truncate -s0 /var/log/nginx/*.log" || ok "token not in web logs"
   grep -q '^HQ_MCP_WRITES=off' /etc/hq-mcp.env && info "connector is read-only" || info "connector can write (every write is in the audit trail)"
 else info "connector not installed"; fi
 
