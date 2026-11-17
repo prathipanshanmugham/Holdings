@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><link rel="icon" href="favicon.ico" sizes="48x48"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="site.webmanifest"><meta name="theme-color" content="#141413"><meta name="application-name" content="Prathipan Holdings HQ"><meta name="apple-mobile-web-app-title" content="PH HQ"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px system-ui;background:#f6f5f1;color:#141413}[hidden]:not([hidden=until-found i]){display:none!important}</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js" crossorigin="anonymous"></script><script src="config.js"></script><script src="hq.js"></script></head><body><title>Prathipan Holdings · HQ</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><link rel="icon" href="favicon.ico" sizes="48x48"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="site.webmanifest"><meta name="theme-color" content="#141413"><meta name="application-name" content="Prathipan Holdings HQ"><meta name="apple-mobile-web-app-title" content="PH HQ"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px system-ui;background:#f6f5f1;color:#141413}[hidden]:not([hidden=until-found i]){display:none!important}</style><script src="vendor/supabase.min.js?v=2.118.0"></script><script src="config.js"></script><script src="hq.js"></script></head><body><title>Prathipan Holdings · HQ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Montserrat:wght@500;600&display=swap">
@@ -2800,11 +2800,13 @@ window.__hqStart = boot;
     e.preventDefault(); go.disabled = true; say("");
     const em = email.value.trim(), p = pw.value;
     let r;
-    if (mode === "link") r = await H.magicLink(em);
-    else if (mode === "signup") r = await H.signUp(em, p, em.split("@")[0]);
-    else r = await H.signIn(em, p);
+    try {
+      const call = mode === "link" ? H.magicLink(em) : mode === "signup" ? H.signUp(em, p, em.split("@")[0]) : H.signIn(em, p);
+      r = await Promise.race([call, new Promise((_, rej) => setTimeout(() => rej(new Error("No answer from the sign-in service after 20 seconds. Check your connection and try again.")), 20000))]);
+    } catch (e) { console.error("[HQ auth]", e); r = {error:{message:(e && e.message) || "Sign-in failed"}}; }
     go.disabled = false;
-    if (r.error) { say(r.error.message, true); return; }
+    if (!r) r = {};
+    if (r.error) { console.warn("[HQ auth]", r.error); say(r.error.message || "Sign-in failed", true); return; }
     if (mode === "link") say("Sign-in link sent. Open it on this device.");
     else if (mode === "signup" && !(r.data && r.data.session)) say("Account created. Confirm your email, then sign in. The Admin will give you a role.");
   };
