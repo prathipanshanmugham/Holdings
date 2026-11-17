@@ -92,3 +92,17 @@ Sign-in options on the login screen: password, emailed magic link, password rese
 ## Keeping the two versions
 
 The Claude artifact copy keeps working on its own; `seed.sql` is a snapshot taken today. From the day HQ goes live, enter data in HQ. If you want a fresh snapshot later, ask Claude to export again and re-run the new seed (it overwrites matching records, keeps the rest).
+
+## AI agents & MCP connector
+
+`mcp/` is a connector that exposes HQ to Claude, n8n and other agents as business tools (group snapshot, company metrics, CEO scorecards, brand performance, legal notices, compliance, capital, alerts, activity log, and guarded write tools: record month, update company, set budget, log/update legal notice, set compliance status, allocate funds). It signs in as a dedicated member account, so roles and the activity log apply.
+
+Install on the VPS (once):
+```
+cd /opt/prathipan-hq && git pull && bash mcp/install.sh
+```
+Then follow the printed NEXT steps: create the agent user in Supabase Auth, give it a role in HQ → Users & roles, add DNS `A  mcp → VPS IP`, restart the service and run certbot for `mcp.prathipanholdings.cloud`.
+
+Connect in claude.ai → Settings → Connectors → Add custom connector → URL `https://mcp.prathipanholdings.cloud/<token>/mcp` (token is in `/etc/hq-mcp.env`). For n8n use the MCP Client node with the same URL, or header `Authorization: Bearer <token>`.
+
+Health: `curl https://mcp.prathipanholdings.cloud/health` · Logs: `journalctl -u hq-mcp -f`.

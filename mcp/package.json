@@ -1,0 +1,13 @@
+{
+  "name": "prathipan-hq-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.0",
+    "@supabase/supabase-js": "^2.118.0",
+    "zod": "^3.25.0"
+  }
+}

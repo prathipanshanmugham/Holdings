@@ -1,0 +1,20 @@
+[Unit]
+Description=Prathipan Holdings HQ MCP connector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=/opt/prathipan-hq/mcp
+EnvironmentFile=/etc/hq-mcp.env
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=3
+User=www-data
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/prathipan-hq
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
