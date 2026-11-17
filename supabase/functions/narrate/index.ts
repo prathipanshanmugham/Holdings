@@ -5,8 +5,10 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+const ORIGIN = Deno.env.get("ALLOWED_ORIGIN") || "https://hq.prathipanholdings.cloud";
 const CORS = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": ORIGIN,
+  "Vary": "Origin",
   "Access-Control-Allow-Headers": "authorization, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
@@ -21,7 +23,10 @@ Deno.serve(async (req) => {
   if (!auth.startsWith("Bearer ")) return json({ error: "sign in" }, 401);
 
   // Who is calling? Use the caller's own JWT so RLS applies.
-  const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, {
+  const origin = req.headers.get("Origin");
+  if (origin && origin !== ORIGIN) return json({ error: "origin" }, 403);
+  const publicKey = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY") || req.headers.get("apikey") || "";
+  const sb = createClient(Deno.env.get("SUPABASE_URL")!, publicKey, {
     global: { headers: { Authorization: auth } },
   });
   const { data: user } = await sb.auth.getUser();
@@ -36,10 +41,10 @@ Deno.serve(async (req) => {
   try { body = await req.json(); } catch { return json({ error: "bad json" }, 400); }
   const prompt = typeof body.input === "string" ? body.input : JSON.stringify(body.input ?? "");
   if (!prompt.trim()) return json({ error: "empty" }, 400);
-  if (prompt.length > 400_000) return json({ error: "too long" }, 413);
+  if (prompt.length > 200_000) return json({ error: "too long" }, 413);
 
   const model = Deno.env.get("ANTHROPIC_MODEL") || "claude-sonnet-5-5";
-  const maxTokens = Number(Deno.env.get("MAX_TOKENS") || 1200);
+  const maxTokens = Math.min(4000, Number(Deno.env.get("MAX_TOKENS") || 1200));
 
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",

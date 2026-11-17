@@ -1,108 +1,64 @@
 # Prathipan Holdings HQ — hq.prathipanholdings.cloud
 
-The ERP as a standalone web app: your own database (Supabase), sign-in, roles, live updates, and the CFO desk narrated by Claude through a server-side function. Nothing in it depends on claude.ai once it's live.
+The group ERP as a standalone web app on your own VPS, with its data in Supabase, two-step sign-in, database-enforced roles, a tamper-proof audit trail, and an MCP connector for Claude and n8n.
 
 ```
-site/       → upload this folder to the web host (index.html, hq.js, config.js, favicon, headers)
-supabase/   → schema.sql (tables + security), seed.sql (your 129 records), functions/narrate (Claude proxy)
+site/       the web app nginx serves (/var/www/hq → /opt/prathipan-hq/site); config.js lives only on the server
+supabase/   schema.sql (tables) · security.sql (rules) · seed.sql (data snapshot) · functions/narrate (Claude proxy)
+mcp/        the connector (Node service behind nginx at mcp.prathipanholdings.cloud)
+deploy/     harden.sh · update.sh · check.sh · rotate-secrets.sh · nginx site · security headers
 ```
 
-Total setup is about 30 minutes. Steps 1–4 are once; 5 is per person you invite.
+## Everyday commands (VPS, as root)
 
----
-
-## 1. Database (Supabase, free tier is enough)
-
-1. Go to supabase.com → **New project**. Name `prathipan-hq`, region **Mumbai (ap-south-1)**, set a strong database password (you won't need it in the app).
-2. Left menu **SQL Editor → New query**. Paste all of `supabase/schema.sql` → **Run**. (Creates tables, row-level security, the owner rule, realtime.)
-3. New query again. Paste all of `supabase/seed.sql` → **Run**. (Loads your 20 companies, 55 brands, compliance items, legal notices, allocations, investments, shareholders, intercompany, ventures and group settings exactly as they are in the Claude version today.)
-4. **Authentication → Providers → Email**: keep it enabled. If you want people to sign in immediately without clicking a confirmation email, switch off *Confirm email*.
-5. **Authentication → URL Configuration**: Site URL `https://hq.prathipanholdings.cloud`, and add the same to *Redirect URLs*.
-6. **Project Settings → API**: copy **Project URL** and the **anon public** key.
-
-Open `site/config.js` and fill in:
-
-```js
-window.HQ_CONFIG = {
-  supabaseUrl: "https://xxxxxxxx.supabase.co",
-  supabaseAnonKey: "eyJhbGciOi...",
-  narrateUrl: ""   // filled in step 3
-};
-```
-
-The anon key is meant for browsers; the data is protected by the row-level security in `schema.sql`, not by hiding the key.
-
-**Owner:** `schema.sql` names `prathipanshanmugham33@gmail.com` as the owner (always Admin, cannot be locked out). To change it later: SQL Editor → `update hq_config set value = 'new@email' where key = 'owner_email';`
-
-## 2. Put the site online
-
-Any static host works. Two one-drag options:
-
-**Netlify (simplest):** app.netlify.com → *Add new site → Deploy manually* → drag the whole `site` folder. You get `something.netlify.app` immediately. Then *Domain management → Add a domain → `hq.prathipanholdings.cloud`*; Netlify issues the SSL certificate once DNS points at it.
-
-**Cloudflare Pages:** dash.cloudflare.com → *Workers & Pages → Create → Pages → Upload assets* → drag `site`. Then *Custom domains → Set up a custom domain*.
-
-To update the app later, drag the folder again. Data lives in Supabase, so redeploys never touch it.
-
-## 3. DNS at your registrar
-
-Add one record where `prathipanholdings.cloud` is managed:
-
-| Type  | Name / host | Value                                   | TTL  |
-|-------|-------------|-----------------------------------------|------|
-| CNAME | `hq`        | `<your-site>.netlify.app` (or `<project>.pages.dev` for Cloudflare) | Auto / 3600 |
-
-Delete any existing A/CNAME record for `hq` first. Propagation is usually minutes, up to a few hours. HTTPS is automatic on both hosts after the record resolves.
-
-## 4. CFO desk and report narration (Claude)
-
-The browser never sees your Anthropic key. A Supabase Edge Function holds it and only answers signed-in members.
-
-*Via the dashboard:* **Edge Functions → Deploy a new function → Via Editor**, name it `narrate`, paste `supabase/functions/narrate/index.ts`, Deploy. Then **Edge Functions → Secrets** (or Project Settings → Edge Functions): add `ANTHROPIC_API_KEY` = your key from console.anthropic.com. Optional secrets: `ANTHROPIC_MODEL` (default `claude-sonnet-5-5`), `MAX_TOKENS` (default 1200).
-
-*Via CLI:*
-```
-npm i -g supabase
-supabase login
-supabase link --project-ref <your-project-ref>
-supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
-supabase functions deploy narrate
-```
-
-Then set `narrateUrl: "https://xxxxxxxx.supabase.co/functions/v1/narrate"` in `config.js` and re-upload. Leave it empty and the Ask-the-CFO panel simply stays hidden.
-
-## 5. First sign-in and inviting people
-
-1. Open `https://hq.prathipanholdings.cloud` → *First time here? Create your account* with the owner email. You land in the ERP as Admin.
-2. **Users & roles → Add a person** → type their email → pick *invite by email* → choose Admin / Manager / Staff and the companies. They open the site, create their account with that email, and the role is attached automatically.
-3. Roles: **Admin** everything except owner-only settings · **Manager** their companies: books, budgets, brands, KPIs, requests · **Staff** brand results, compliance status, legal updates for their companies. The database itself only lets members read or write; everyone else sees a locked screen.
-
-Sign-in options on the login screen: password, emailed magic link, password reset.
-
-## What is where
-
-| Thing | Where it lives |
+| What | Command |
 |---|---|
-| All ERP data | Supabase table `docs` (one row per record, JSON), realtime on |
-| Who has access | tables `members` (roles) and `profiles` (names) |
-| Activity log | `docs` rows in collection `activity` |
-| Anthropic key | Supabase function secret only |
-| App code | `site/index.html` + `site/hq.js`; static, no build step |
+| Update to the latest version | `bash /opt/prathipan-hq/deploy/update.sh` |
+| Check health and security | `bash /opt/prathipan-hq/deploy/check.sh` |
+| Re-apply server hardening | `bash /opt/prathipan-hq/deploy/harden.sh` |
+| New connector token + agent password | `bash /opt/prathipan-hq/deploy/rotate-secrets.sh` |
+| Connector logs | `journalctl -u hq-mcp -f` |
 
-## Keeping the two versions
+## How access works
 
-The Claude artifact copy keeps working on its own; `seed.sql` is a snapshot taken today. From the day HQ goes live, enter data in HQ. If you want a fresh snapshot later, ask Claude to export again and re-run the new seed (it overwrites matching records, keeps the rest).
+- **Owner** (`owner_email` in `hq_config`): everything, and the only person who can grant or remove access.
+- **Admin**: all companies and modules, except granting access.
+- **Manager**: only their companies. Records books, balances, spending, KPI actuals; manages brands, compliance and legal notices; raises capital requests. Cannot change stake, targets, CEO, budgets, settings or treasury, and cannot approve money.
+- **Staff**: only their companies' brands, compliance and legal notices. Sees company names only (no financials). Can record brand months, mark compliance filed and add legal updates.
 
-## AI agents & MCP connector
+These rules are enforced **inside the database** (`security.sql`), not only on screen: even someone with the page's key and developer tools gets nothing beyond their role. Only confirmed email addresses count, so nobody can claim an invited email they don't own.
 
-`mcp/` is a connector that exposes HQ to Claude, n8n and other agents as business tools (group snapshot, company metrics, CEO scorecards, brand performance, legal notices, compliance, capital, alerts, activity log, and guarded write tools: record month, update company, set budget, log/update legal notice, set compliance status, allocate funds). It signs in as a dedicated member account, so roles and the activity log apply.
+**Two-step sign-in** is required for the Owner and Admins (Google or Microsoft Authenticator). Anyone who enrols is always asked for a code. The connector's agent account is exempt (it has no phone); its secrets are root-only on the server.
 
-Install on the VPS (once):
+Every change is written to `audit_log` (who, when, before, after). Nobody can edit or delete it through the app or API. The owner can read it in Supabase → SQL Editor:
+
+```sql
+select at, actor_email, action, collection, doc_id from public.audit_log order by at desc limit 100;
 ```
-cd /opt/prathipan-hq && git pull && bash mcp/install.sh
-```
-Then follow the printed NEXT steps: create the agent user in Supabase Auth, give it a role in HQ → Users & roles, add DNS `A  mcp → VPS IP`, restart the service and run certbot for `mcp.prathipanholdings.cloud`.
 
-Connect in claude.ai → Settings → Connectors → Add custom connector → URL `https://mcp.prathipanholdings.cloud/<token>/mcp` (token is in `/etc/hq-mcp.env`). For n8n use the MCP Client node with the same URL, or header `Authorization: Bearer <token>`.
+Sessions sign out after 60 minutes without activity (`idleMinutes` in `config.js`).
 
-Health: `curl https://mcp.prathipanholdings.cloud/health` · Logs: `journalctl -u hq-mcp -f`.
+## Fresh install (for reference)
+
+1. Supabase project (Mumbai). SQL Editor: run `schema.sql`, then `security.sql`, then `seed.sql`.
+2. Authentication → Sign In / Providers → Email: **Confirm email ON**, minimum password length **10**. URL Configuration: Site URL and Redirect URL `https://hq.prathipanholdings.cloud` only.
+3. VPS: `git clone https://github.com/prathipanshanmugham/Holdings.git /opt/prathipan-hq`, `ln -sfn /opt/prathipan-hq/site /var/www/hq`, copy `site/config.example.js` to `site/config.js` and fill in the Project URL and **publishable** key (never the secret key).
+4. DNS `A hq → VPS IP`, `certbot --nginx -d hq.prathipanholdings.cloud`, then `bash deploy/harden.sh`.
+5. Open the site → create the owner account → set up the authenticator.
+
+## Connector (MCP)
+
+17 tools: group snapshot, companies, company metrics, CEO scorecards, brand performance, legal notices, compliance calendar, capital & holdings, alerts, activity log, plus writes (record month, update company, set budget, log/update legal notice, set compliance status, capital allocation). Writes need exact company names, validate every value against the ERP's own vocabulary, and land in the activity log and audit trail. Set `HQ_MCP_WRITES=off` in `/etc/hq-mcp.env` for a read-only connector; give the agent a Manager role to limit it to certain companies.
+
+Install once: `bash /opt/prathipan-hq/mcp/install.sh` and follow its printout. Connect in claude.ai → Settings → Connectors with `https://mcp.prathipanholdings.cloud/<token>/mcp`. Treat that URL like a password.
+
+## CFO desk (optional)
+
+Supabase → Edge Functions → deploy `supabase/functions/narrate/index.ts` as `narrate`; add secret `ANTHROPIC_API_KEY`. Then set `narrateUrl` in `config.js`. It only answers signed-in members, only from the HQ site.
+
+## If something goes wrong
+
+- **Lost the phone with the authenticator:** SQL Editor → `delete from auth.mfa_factors where user_id = (select id from auth.users where email = 'YOUR@EMAIL');` then sign in and set it up again.
+- **Emergency: switch off required two-step sign-in:** `update public.hq_config set value = '' where key = 'mfa_required_roles';` (turn back on with `'Owner,Admin'`).
+- **Change the owner:** `update public.hq_config set value = 'new@email' where key = 'owner_email';`
+- **Site down after a server change:** `harden.sh` keeps a copy of the previous nginx config in `/root/hq-backup-<time>/` and restores it automatically if its test fails.

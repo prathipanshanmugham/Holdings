@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><link rel="icon" href="favicon.ico" sizes="48x48"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="site.webmanifest"><meta name="theme-color" content="#141413"><meta name="application-name" content="Prathipan Holdings HQ"><meta name="apple-mobile-web-app-title" content="PH HQ"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px system-ui;background:#f6f5f1;color:#141413}[hidden]:not([hidden=until-found i]){display:none!important}</style><script src="vendor/supabase.min.js?v=2.118.0"></script><script src="config.js"></script><script src="hq.js"></script></head><body><title>Prathipan Holdings · HQ</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><link rel="icon" href="favicon.ico" sizes="48x48"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="site.webmanifest"><meta name="theme-color" content="#141413"><meta name="application-name" content="Prathipan Holdings HQ"><meta name="apple-mobile-web-app-title" content="PH HQ"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px system-ui;background:#f6f5f1;color:#141413}[hidden]:not([hidden=until-found i]){display:none!important}</style><script src="vendor/supabase.min.js?v=2.118.0"></script><script src="config.js"></script><script src="hq.js?v=a062dbcf37"></script></head><body><title>Prathipan Holdings · HQ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Montserrat:wght@500;600&display=swap">
@@ -1837,7 +1837,7 @@ function renderNav(){
   const ovd = ready ? M.openComp.filter(x => x.days != null && x.days < 0).length : 0;
   let html = "";
   GROUPS.forEach(g => {
-    const vs = VIEWS.filter(v => v.g === g && (!ready || v.roles.includes(role())));
+    const vs = VIEWS.filter(v => v.g === g && !!role() && v.roles.includes(role()));
     if (!vs.length) return;
     html += `<div class="nav-g">${esc(g)}</div>` + vs.map(v => `<button type="button" data-act="nav" data-view="${v.id}"${v.id === view ? ` aria-current="page"` : ""}><span class="ic">${ICONS[v.id] || ""}</span><span>${esc(v.label)}</span>${v.id === "overview" && crit ? `<span class="badge" title="High-priority items">${crit}</span>` : ""}${v.id === "legal" && urgentLegal ? `<span class="badge" title="Notices needing action this week">${urgentLegal}</span>` : ""}${v.id === "compliance" && ovd ? `<span class="badge" title="Overdue filings">${ovd}</span>` : ""}</button>`).join("");
   });
@@ -2727,29 +2727,36 @@ window.__hqStart = boot;
 })();
 </script>
 <style>
-.hq-gate{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:var(--bg,#f6f5f1);font-family:Manrope,system-ui,sans-serif;color:var(--ink,#141413)}
+.hq-gate{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:var(--bg,#f6f5f1);font-family:Manrope,system-ui,sans-serif;color:var(--ink,#141413);overflow:auto;padding:24px 0}
 .hq-gate[hidden]{display:none}
-.hq-card{width:min(400px,calc(100% - 32px));background:#fff;border:1px solid var(--line,#e6e3dc);border-radius:16px;padding:30px 28px 26px;box-shadow:0 20px 60px rgba(20,20,19,.08)}
+.hq-card{width:min(400px,calc(100% - 32px));margin:auto;background:#fff;border:1px solid var(--line,#e6e3dc);border-radius:16px;padding:30px 28px 26px;box-shadow:0 20px 60px rgba(20,20,19,.08)}
 .hq-card .brand{display:flex;align-items:center;gap:12px;margin-bottom:22px}
 .hq-card .mono{width:40px;height:40px;background:var(--ink,#141413);-webkit-mask:var(--mono) center/contain no-repeat;mask:var(--mono) center/contain no-repeat}
 .hq-card .brand .wordmark{color:#141413 !important;font-family:Montserrat,sans-serif;font-weight:600;letter-spacing:.14em;font-size:12px;line-height:1.3}
-.hq-card .brand .wordmark span{color:#6b6a66 !important;display:block;font-weight:500;color:var(--muted,#6b6a66);letter-spacing:.22em;font-size:10px}
+.hq-card .brand .wordmark span{color:#6b6a66 !important;display:block;font-weight:500;letter-spacing:.22em;font-size:10px}
 .hq-card h1{font-size:20px;margin:0 0 4px;font-weight:600;letter-spacing:-.01em}
 .hq-card p{margin:0 0 18px;color:var(--muted,#6b6a66);font-size:13px;line-height:1.5}
 .hq-card label{display:block;font-size:12px;font-weight:600;color:var(--muted,#6b6a66);margin:12px 0 5px}
 .hq-card input{width:100%;box-sizing:border-box;border:1px solid var(--line,#e6e3dc);border-radius:9px;padding:10px 12px;font:inherit;font-size:14px;background:#fff;color:inherit;outline:none}
 .hq-card input:focus{border-color:var(--accent,#9a7a34);box-shadow:0 0 0 3px rgba(154,122,52,.15)}
-.hq-card .btn{width:100%;margin-top:16px;border:0;border-radius:9px;padding:11px;font:inherit;font-weight:600;font-size:14px;background:var(--ink,#141413);color:#fff;cursor:pointer}
+.hq-card input.code{font-family:"IBM Plex Mono",monospace;font-size:22px;letter-spacing:.35em;text-align:center}
+.hq-card .btn{display:flex;align-items:center;justify-content:center;width:100%;margin-top:16px;border:0;border-radius:9px;padding:11px;font:inherit;font-weight:600;font-size:14px;background:var(--ink,#141413);color:#fff;cursor:pointer}
 .hq-card .btn[disabled]{opacity:.5;cursor:default}
 .hq-card .links{display:flex;justify-content:space-between;gap:12px;margin-top:14px;font-size:12px}
-.hq-card .links button{background:none;border:0;padding:0;color:var(--accent,#9a7a34);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.hq-card .links button,.hq-card .linkbtn{background:none;border:0;padding:0;color:var(--accent,#9a7a34);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .hq-card .msg{margin-top:12px;font-size:12.5px;line-height:1.45;border-radius:8px;padding:9px 11px;background:#f6f3ea;color:#5c4a1c}
 .hq-card .msg.err{background:#fbeeec;color:#8a2a1f}
-.hq-card .msg[hidden]{display:none}
-.hq-card code{font-family:"IBM Plex Mono",monospace;font-size:12px;background:#f3f1ec;padding:1px 5px;border-radius:4px}
+.hq-card .msg[hidden],.hq-card [hidden]{display:none !important}
+.hq-card code{font-family:"IBM Plex Mono",monospace;font-size:12px;background:#f3f1ec;padding:1px 5px;border-radius:4px;word-break:break-all}
 .hq-card .setup{font-size:13px;line-height:1.55}
-.hq-card .setup ol{padding-left:18px;margin:8px 0 0}
-.hq-card .setup li{margin:4px 0}
+.hq-card ol{padding-left:18px;margin:4px 0 12px;font-size:13px;line-height:1.5;color:#3d3c39}
+.hq-card ol li{margin:3px 0}
+.hq-card .qr{display:flex;justify-content:center;margin:6px 0 10px}
+.hq-card .qr img{width:184px;height:184px;border:1px solid var(--line,#e6e3dc);border-radius:10px;padding:6px;background:#fff}
+.hq-card .key{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted,#6b6a66)}
+.hq-card .open{display:inline-block;margin-top:8px;font-size:12.5px;font-weight:600;color:var(--accent,#9a7a34)}
+.hq-card .lock{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted,#6b6a66);margin-top:16px}
+.hq-card .lock svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8}
 .hq-signout{flex:none;display:inline-flex;align-items:center;gap:6px;margin-right:8px;border:1px solid var(--line,#e6e3dc);background:#fff;border-radius:999px;padding:5px 11px;font:inherit;font-size:12px;font-weight:600;color:var(--muted,#6b6a66);cursor:pointer}
 .hq-signout svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .hq-signout:hover{color:var(--ink,#141413);border-color:var(--ink,#141413)}
@@ -2757,69 +2764,215 @@ window.__hqStart = boot;
 @media (max-width:980px){.bar .hq-signout{display:none}.nav .hq-nav-out{display:flex}}
 </style>
 <div class="hq-gate" id="hq-gate">
-  <form class="hq-card" id="hq-form" autocomplete="on">
+  <div class="hq-card">
     <div class="brand"><span class="mono" role="img" aria-label="Prathipan Holdings monogram"></span><div class="wordmark">PRATHIPAN<span>HOLDINGS</span></div></div>
-    <div id="hq-login">
+
+    <form id="hq-login" autocomplete="on" novalidate>
       <h1>Sign in to HQ</h1>
-      <p>Group ERP · access is by invitation from the Admin.</p>
+      <p>Group ERP · access is by invitation from the owner.</p>
       <label for="hq-email">Email</label>
-      <input id="hq-email" name="email" type="email" required autocomplete="username" placeholder="you@company.com">
+      <input id="hq-email" name="email" type="email" required autocomplete="username" placeholder="you@company.com" maxlength="254">
       <div id="hq-pw-wrap">
         <label for="hq-pw">Password</label>
-        <input id="hq-pw" name="password" type="password" autocomplete="current-password">
+        <input id="hq-pw" name="password" type="password" autocomplete="current-password" maxlength="128">
       </div>
       <button class="btn" id="hq-go" type="submit">Sign in</button>
       <div class="links"><button type="button" id="hq-mode-link">Email me a sign-in link</button><button type="button" id="hq-forgot">Forgot password</button></div>
       <div class="links"><span></span><button type="button" id="hq-signup">First time here? Create your account</button></div>
       <div class="msg" id="hq-msg" hidden></div>
-    </div>
+    </form>
+
+    <form id="hq-mfa" hidden novalidate>
+      <h1 id="mfa-title">Two-step sign-in</h1>
+      <p id="mfa-sub">Enter the 6-digit code from your authenticator app.</p>
+      <div id="mfa-enroll" hidden>
+        <ol>
+          <li>On your phone, install <b>Google Authenticator</b> or <b>Microsoft Authenticator</b>.</li>
+          <li>Tap <b>+</b> and scan this code, or type the key below.</li>
+          <li>Enter the 6-digit code the app shows.</li>
+        </ol>
+        <div class="qr"><img id="mfa-qr" alt="QR code to add HQ to your authenticator app"></div>
+        <div class="key">Key: <code id="mfa-secret"></code> <button type="button" class="linkbtn" id="mfa-copy">Copy</button></div>
+        <a class="open" id="mfa-open" href="#">Open in authenticator app on this device</a>
+      </div>
+      <label for="mfa-code">6-digit code</label>
+      <input id="mfa-code" class="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••">
+      <button class="btn" id="mfa-go" type="submit">Verify</button>
+      <div class="links"><span></span><button type="button" id="mfa-out">Sign out</button></div>
+      <div class="msg" id="mfa-msg" hidden></div>
+    </form>
+
+    <form id="hq-newpw" hidden novalidate>
+      <h1>Choose a new password</h1>
+      <p>At least 10 characters. Use something you don't use anywhere else.</p>
+      <label for="np1">New password</label>
+      <input id="np1" type="password" autocomplete="new-password" maxlength="128">
+      <label for="np2">Repeat it</label>
+      <input id="np2" type="password" autocomplete="new-password" maxlength="128">
+      <button class="btn" id="np-go" type="submit">Save password</button>
+      <div class="msg" id="np-msg" hidden></div>
+    </form>
+
     <div id="hq-setup" class="setup" hidden>
       <h1>Almost there</h1>
       <p>This copy of HQ hasn't been connected to its database yet.</p>
       <ol>
         <li>Open <code>config.js</code> next to this page.</li>
-        <li>Paste your Supabase <b>Project URL</b> and <b>anon public key</b> (Supabase → Project Settings → API).</li>
-        <li>Upload it again and reload this page.</li>
+        <li>Paste your Supabase <b>Project URL</b> and <b>publishable key</b> (Supabase → Project Settings → API Keys).</li>
+        <li>Save it and reload this page.</li>
       </ol>
     </div>
-  </form>
+
+    <div class="lock" id="hq-lock"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Encrypted connection · every change is recorded</div>
+  </div>
 </div>
 <script>
 (() => {
-  const gate = document.getElementById("hq-gate"), form = document.getElementById("hq-form"), msg = document.getElementById("hq-msg");
-  const email = document.getElementById("hq-email"), pw = document.getElementById("hq-pw"), pwWrap = document.getElementById("hq-pw-wrap"), go = document.getElementById("hq-go");
-  let mode = "password", started = false;
-  const say = (t, err) => { msg.textContent = t; msg.classList.toggle("err", !!err); msg.hidden = !t; };
-  if (window.HQ_SETUP_NEEDED || !window.HQ) { document.getElementById("hq-login").hidden = true; document.getElementById("hq-setup").hidden = false; return; }
-  const H = window.HQ;
-  function setMode(m){ mode = m; pwWrap.hidden = m === "link"; pw.required = m !== "link"; go.textContent = m === "link" ? "Send sign-in link" : m === "signup" ? "Create account" : "Sign in"; document.getElementById("hq-mode-link").textContent = m === "link" ? "Use a password instead" : "Email me a sign-in link"; document.getElementById("hq-signup").textContent = m === "signup" ? "Already have an account? Sign in" : "First time here? Create your account"; pw.autocomplete = m === "signup" ? "new-password" : "current-password"; if (m === "signup") pw.minLength = 8; else pw.removeAttribute("minlength"); say(""); }
-  document.getElementById("hq-mode-link").onclick = () => setMode(mode === "link" ? "password" : "link");
-  document.getElementById("hq-signup").onclick = () => setMode(mode === "signup" ? "password" : "signup");
-  document.getElementById("hq-forgot").onclick = async () => { if (!email.value) { say("Type your email first.", true); email.focus(); return; } go.disabled = true; const {error} = await H.reset(email.value.trim()); go.disabled = false; say(error ? error.message : "Check your inbox for a reset link.", !!error); };
-  form.onsubmit = async e => {
-    e.preventDefault(); go.disabled = true; say("");
-    const em = email.value.trim(), p = pw.value;
-    let r;
-    try {
-      const call = mode === "link" ? H.magicLink(em) : mode === "signup" ? H.signUp(em, p, em.split("@")[0]) : H.signIn(em, p);
-      r = await Promise.race([call, new Promise((_, rej) => setTimeout(() => rej(new Error("No answer from the sign-in service after 20 seconds. Check your connection and try again.")), 20000))]);
-    } catch (e) { console.error("[HQ auth]", e); r = {error:{message:(e && e.message) || "Sign-in failed"}}; }
-    go.disabled = false;
-    if (!r) r = {};
-    if (r.error) { console.warn("[HQ auth]", r.error); say(r.error.message || "Sign-in failed", true); return; }
-    if (mode === "link") say("Sign-in link sent. Open it on this device.");
-    else if (mode === "signup" && !(r.data && r.data.session)) say("Account created. Confirm your email, then sign in. The Admin will give you a role.");
+  const $ = id => document.getElementById(id);
+  const gate = $("hq-gate");
+  const STEPS = ["hq-login", "hq-mfa", "hq-newpw", "hq-setup"];
+  const show = step => { STEPS.forEach(id => { $(id).hidden = id !== step; }); gate.hidden = false; };
+  const sayIn = box => (t, err) => { const m = $(box); m.textContent = t || ""; m.classList.toggle("err", !!err); m.hidden = !t; };
+  const say = sayIn("hq-msg"), sayMfa = sayIn("mfa-msg"), sayNp = sayIn("np-msg");
+  if (window.HQ_SETUP_NEEDED || !window.HQ) { show("hq-setup"); return; }
+  const H = window.HQ, CFG = window.HQ_CONFIG || {};
+  const friendly = m => {
+    const s = String(m || "");
+    if (/invalid login credentials/i.test(s)) return "Wrong email or password.";
+    if (/email not confirmed/i.test(s)) return "Confirm your email first: open the link we emailed you (check spam too), then sign in.";
+    if (/invalid totp|invalid code|code.*(invalid|expired)/i.test(s)) return "That code didn't match. Use the current 6-digit code from your authenticator app.";
+    if (/signups not allowed|signup.*disabled/i.test(s)) return "New accounts are switched off. Ask the owner to invite you.";
+    if (/user already registered/i.test(s)) return "This email already has an account. Sign in instead, or use Forgot password.";
+    if (/password should be|weak password/i.test(s)) return "Choose a longer password: at least 10 characters with letters and numbers.";
+    return s || "Something went wrong. Try again.";
   };
+  const withTimeout = p => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("No answer from the sign-in service after 20 seconds. Check your connection and try again.")), 20000))]);
+
+  /* ---------- sign in / sign up / link / reset ---------- */
+  const email = $("hq-email"), pw = $("hq-pw"), go = $("hq-go");
+  let mode = "password";
+  function setMode(m){
+    mode = m; $("hq-pw-wrap").hidden = m === "link";
+    go.textContent = m === "link" ? "Send sign-in link" : m === "signup" ? "Create account" : "Sign in";
+    $("hq-mode-link").textContent = m === "link" ? "Use a password instead" : "Email me a sign-in link";
+    $("hq-signup").textContent = m === "signup" ? "Already have an account? Sign in" : "First time here? Create your account";
+    pw.autocomplete = m === "signup" ? "new-password" : "current-password"; say("");
+  }
+  $("hq-mode-link").onclick = () => setMode(mode === "link" ? "password" : "link");
+  $("hq-signup").onclick = () => setMode(mode === "signup" ? "password" : "signup");
+  $("hq-forgot").onclick = async () => {
+    const em = email.value.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { say("Type your email first.", true); email.focus(); return; }
+    go.disabled = true;
+    try { const {error} = await withTimeout(H.reset(em)); say(error ? friendly(error.message) : "If that email has an account, a reset link is on its way.", !!error); }
+    catch (e) { say(friendly(e.message), true); }
+    go.disabled = false;
+  };
+  $("hq-login").onsubmit = async e => {
+    e.preventDefault(); say("");
+    const em = email.value.trim(), p = pw.value;
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { say("Enter a valid email address.", true); email.focus(); return; }
+    if (mode !== "link" && !p) { say("Enter your password.", true); pw.focus(); return; }
+    if (mode === "signup" && (p.length < 10 || !/[A-Za-z]/.test(p) || !/[0-9]/.test(p))) { say("Choose a password of at least 10 characters with letters and numbers.", true); pw.focus(); return; }
+    go.disabled = true;
+    let r;
+    try { r = await withTimeout(mode === "link" ? H.magicLink(em) : mode === "signup" ? H.signUp(em, p, em.split("@")[0]) : H.signIn(em, p)); }
+    catch (e2) { r = {error:{message:(e2 && e2.message) || "Sign-in failed"}}; }
+    go.disabled = false;
+    r = r || {};
+    if (r.error) { console.warn("[HQ auth]", r.error); say(friendly(r.error.message), true); return; }
+    if (mode === "link") say("If that email has an account, a sign-in link is on its way. Open it on this device.");
+    else if (mode === "signup" && !(r.data && r.data.session)) { say("Account created. Open the confirmation link we emailed you, then sign in here."); setMode("password"); say("Account created. Open the confirmation link we emailed you, then sign in here."); }
+    else pw.value = "";
+  };
+
+  /* ---------- two-step sign-in ---------- */
+  let factorId = null;
+  const code = $("mfa-code");
+  async function showCode(){
+    $("mfa-title").textContent = "Two-step sign-in"; $("mfa-sub").textContent = "Enter the 6-digit code from your authenticator app.";
+    $("mfa-enroll").hidden = true; sayMfa(""); show("hq-mfa"); code.value = ""; code.focus();
+  }
+  async function showEnroll(){
+    $("mfa-title").textContent = "Protect your account"; $("mfa-sub").textContent = "Your role needs a code from your phone each time you sign in. This takes one minute, once.";
+    $("mfa-enroll").hidden = false; sayMfa(""); show("hq-mfa"); code.value = "";
+    try {
+      const f = await H.mfa.enroll(); factorId = f.id;
+      let qr = String(f.totp.qr_code || "");
+      const at = qr.search(/<(\?xml|svg)/i);   // Supabase returns raw SVG, sometimes behind one or more data: prefixes
+      if (at >= 0) qr = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(qr.slice(at));
+      $("mfa-qr").src = qr; $("mfa-secret").textContent = f.totp.secret; $("mfa-open").href = /^otpauth:\/\//.test(f.totp.uri) ? f.totp.uri : "#";
+    } catch (e) { sayMfa(friendly(e.message), true); }
+  }
+  $("mfa-copy").onclick = async () => { try { await navigator.clipboard.writeText($("mfa-secret").textContent); sayMfa("Key copied."); } catch (e) { sayMfa("Select the key and copy it manually.", true); } };
+  $("mfa-out").onclick = () => H.signOut();
+  code.oninput = () => { code.value = code.value.replace(/\D/g, "").slice(0, 6); if (code.value.length === 6) $("hq-mfa").requestSubmit(); };
+  $("hq-mfa").onsubmit = async e => {
+    e.preventDefault();
+    if (!/^\d{6}$/.test(code.value)) { sayMfa("Enter the 6 digits from your authenticator app.", true); return; }
+    if (!factorId) { sayMfa("Setting up… try again in a moment.", true); return; }
+    $("mfa-go").disabled = true; sayMfa("");
+    try { await withTimeout(H.mfa.verify(factorId, code.value)); await decide("MFA_VERIFIED"); }
+    catch (e2) { sayMfa(friendly(e2.message), true); code.value = ""; code.focus(); }
+    $("mfa-go").disabled = false;
+  };
+
+  /* ---------- new password after a reset link ---------- */
+  let recovery = /type=recovery/.test(location.hash);
+  $("hq-newpw").onsubmit = async e => {
+    e.preventDefault();
+    const a = $("np1").value, b = $("np2").value;
+    if (a.length < 10 || !/[A-Za-z]/.test(a) || !/[0-9]/.test(a)) { sayNp("Use at least 10 characters with letters and numbers.", true); return; }
+    if (a !== b) { sayNp("The two passwords don't match.", true); return; }
+    $("np-go").disabled = true;
+    try { const {error} = await withTimeout(H.updatePassword(a)); if (error) throw error; recovery = false; await decide("PASSWORD_UPDATED"); }
+    catch (e2) { sayNp(friendly(e2.message), true); }
+    $("np-go").disabled = false;
+  };
+
+  /* ---------- decide what to show ---------- */
+  let started = false, busy = false, again = false;
+  async function decide(ev){
+    if (ev === "PASSWORD_RECOVERY") recovery = true;
+    if (busy) { again = true; return; }
+    busy = true;
+    try {
+      const s = H.session();
+      if (!s) { if (started) { location.reload(); return; } factorId = null; show("hq-login"); return; }
+      if (started) return;
+      let st = null; try { st = await H.mfa.status(); } catch (e) { st = null; }
+      const lvl = await H.mfa.level();
+      const need = st && (st.required || st.enrolled) && lvl.currentLevel !== "aal2";
+      if (need || (lvl.nextLevel === "aal2" && lvl.currentLevel !== "aal2")) {
+        const v = await H.mfa.verified();
+        if (v.length) { factorId = v[0].id; await showCode(); } else await showEnroll();
+        return;
+      }
+      if (recovery) { show("hq-newpw"); $("np1").focus(); return; }
+      await H.whenReady(); if (H.refresh) await H.refresh();
+      start();
+    } catch (e) { console.error("[HQ]", e); show("hq-login"); say(friendly(e.message), true); }
+    finally { busy = false; if (again) { again = false; decide(); } }
+  }
   function start(){
     if (started) return; started = true; gate.hidden = true;
+    try { history.replaceState(null, "", location.pathname); } catch (e) {}
     if (typeof window.__hqStart === "function") window.__hqStart();
-    const bar = document.querySelector(".bar"), ava = document.getElementById("ava");
-    if (bar && ava && !document.getElementById("hq-signout")) { const b = document.createElement("button"); b.type = "button"; b.id = "hq-signout"; b.className = "hq-signout"; b.setAttribute("aria-label", "Sign out"); b.title = "Sign out"; b.innerHTML = '<svg viewBox="0 0 24 24"><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg><span>Sign out</span>'; b.onclick = () => H.signOut(); bar.insertBefore(b, ava); }
-    const navEl = document.getElementById("nav");
-    if (navEl) { const ensure = () => { if (navEl.querySelector(".hq-nav-out")) return; const n = document.createElement("button"); n.type = "button"; n.className = "hq-nav-out"; n.innerHTML = '<span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg></span>Sign out'; n.onclick = () => H.signOut(); navEl.appendChild(n); }; ensure(); new MutationObserver(ensure).observe(navEl, {childList:true}); }
+    const bar = document.querySelector(".bar"), ava = $("ava");
+    const icon = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg>';
+    if (bar && ava && !$("hq-signout")) { const b = document.createElement("button"); b.type = "button"; b.id = "hq-signout"; b.className = "hq-signout"; b.setAttribute("aria-label", "Sign out"); b.title = "Sign out"; b.innerHTML = icon + "<span>Sign out</span>"; b.onclick = () => H.signOut(); bar.insertBefore(b, ava); }
+    const navEl = $("nav");
+    if (navEl) { const ensure = () => { if (navEl.querySelector(".hq-nav-out")) return; const n = document.createElement("button"); n.type = "button"; n.className = "hq-nav-out"; n.innerHTML = '<span class="ic">' + icon + "</span>Sign out"; n.onclick = () => H.signOut(); navEl.appendChild(n); }; ensure(); new MutationObserver(ensure).observe(navEl, {childList:true}); }
   }
-  function sync(){ const s = H.session(); if (s) start(); else if (started) location.reload(); else gate.hidden = false; }
-  H.whenReady().then(sync); H.onAuth(sync);
+
+  /* ---------- sign out after inactivity ---------- */
+  const idleMs = Math.max(5, Number(CFG.idleMinutes) || 60) * 60000;
+  let last = Date.now();
+  ["pointerdown", "keydown", "wheel", "touchstart"].forEach(t => addEventListener(t, () => { last = Date.now(); }, {passive:true, capture:true}));
+  setInterval(() => { if (H.session() && Date.now() - last > idleMs) { try { sessionStorage.setItem("hq-idle", "1"); } catch (e) {} H.signOut(); } }, 30000);
+  try { if (sessionStorage.getItem("hq-idle")) { sessionStorage.removeItem("hq-idle"); say("You were signed out after a period of inactivity."); } } catch (e) {}
+
+  H.whenReady().then(() => decide()); H.onAuth(ev => decide(ev));
 })();
 </script>
 </body></html>
